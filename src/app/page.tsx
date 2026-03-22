@@ -1,65 +1,143 @@
-import Image from "next/image";
+'use client';
+
+import Link from 'next/link';
+import { useProgress } from '@/lib/progress-context';
+import { useMaterials } from '@/lib/materials-context';
+import { GAMES, BUDDIES } from '@/lib/constants';
+import BuddyAvatar from '@/components/BuddyAvatar';
 
 export default function Home() {
+  const { progress, customBuddies } = useProgress();
+  const { state } = useMaterials();
+  const selectedBuddy = [...BUDDIES, ...customBuddies].find(b => b.id === progress.selectedBuddyId);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-[#0f0a1e] p-4">
+      <div className="max-w-lg mx-auto">
+        {/* Header */}
+        <div className="text-center mb-6 pt-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Poppye&apos;s Revision
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          <p className="text-slate-400 mt-1">Fun learning for P1-P6! 🎮</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Buddy greeting */}
+        {selectedBuddy ? (
+          <div
+            className={`bg-gradient-to-r ${selectedBuddy.bgGradient} bg-opacity-20 rounded-2xl p-4 mb-6 border border-white/10`}
+            style={{ background: `linear-gradient(135deg, ${selectedBuddy.color}15, ${selectedBuddy.color}05)` }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            <div className="flex items-center gap-3">
+              <BuddyAvatar buddy={selectedBuddy} size="md" className="animate-float" />
+              <div>
+                <p className="font-bold text-lg">{selectedBuddy.name}</p>
+                <p className="text-sm text-slate-300">{selectedBuddy.greeting}</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Link href="/buddy" className="block bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl p-4 mb-6 border border-purple-400/30 text-center hover:border-purple-400/60 transition-all">
+            <span className="text-3xl">🤗</span>
+            <p className="font-bold mt-1">Choose Your Learning Buddy!</p>
+            <p className="text-sm text-slate-400">Pick a friend to learn with</p>
+          </Link>
+        )}
+
+        {/* Upload CTA */}
+        <Link href="/upload" className="block bg-gradient-to-r from-indigo-600/20 to-cyan-600/20 rounded-2xl p-4 mb-6 border border-indigo-400/30 hover:border-indigo-400/60 transition-all">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">📸</span>
+            <div>
+              <p className="font-bold">Upload Study Materials</p>
+              <p className="text-sm text-slate-400">
+                Photos of textbooks, notes, or exercises → AI generates quizzes!
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        {/* AI content stats */}
+        {state.generatedContent.length > 0 && (
+          <div className="bg-white/5 rounded-2xl p-3 mb-6 border border-white/10">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-400">🤖 AI Content Ready</span>
+              <span className="text-emerald-400 font-bold">{state.generatedContent.length} sets</span>
+            </div>
+          </div>
+        )}
+
+        {/* Level & XP */}
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-white/10">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-bold">Level {progress.level}</span>
+            <span className="text-sm text-yellow-400">⭐ {progress.xp} XP</span>
+          </div>
+          <div className="w-full bg-white/10 rounded-full h-2">
+            <div
+              className="h-2 rounded-full bg-gradient-to-r from-yellow-400 to-amber-500 transition-all"
+              style={{ width: `${(progress.xp % 100)}%` }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+          <div className="flex items-center justify-between mt-2 text-xs text-slate-400">
+            <span>🎮 {progress.totalGamesPlayed} games</span>
+            <span>🔥 {progress.streak} day streak</span>
+            <span>🏅 {progress.badges.length} badges</span>
+          </div>
         </div>
-      </main>
+
+        {/* Games */}
+        <h2 className="text-xl font-bold mb-3">Play & Learn 🎮</h2>
+        <div className="grid grid-cols-1 gap-3 mb-6">
+          {GAMES.map(game => (
+            <Link
+              key={game.id}
+              href={`/play/${game.id}`}
+              className={`bg-gradient-to-r ${game.gradient} rounded-2xl p-4 hover:scale-[1.02] active:scale-[0.98] transition-all`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{game.icon}</span>
+                <div>
+                  <p className="font-bold text-lg">{game.name}</p>
+                  <p className="text-sm text-white/70">{game.description}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Quick links */}
+        <div className="grid grid-cols-6 gap-2 mb-8">
+          <Link href="/buddy" className="bg-white/5 rounded-xl p-3 text-center hover:bg-white/10 transition-all">
+            {selectedBuddy ? (
+              <BuddyAvatar buddy={selectedBuddy} size="sm" />
+            ) : (
+              <span className="text-xl">🤗</span>
+            )}
+            <p className="text-xs mt-1 text-slate-400">Buddy</p>
+          </Link>
+          <Link href="/upload" className="bg-white/5 rounded-xl p-3 text-center hover:bg-white/10 transition-all">
+            <span className="text-xl">📸</span>
+            <p className="text-xs mt-1 text-slate-400">Upload</p>
+          </Link>
+          <Link href="/materials" className="bg-white/5 rounded-xl p-3 text-center hover:bg-white/10 transition-all">
+            <span className="text-xl">📚</span>
+            <p className="text-xs mt-1 text-slate-400">Materials</p>
+          </Link>
+          <Link href="/progress" className="bg-white/5 rounded-xl p-3 text-center hover:bg-white/10 transition-all">
+            <span className="text-xl">📊</span>
+            <p className="text-xs mt-1 text-slate-400">Progress</p>
+          </Link>
+          <Link href="/badges" className="bg-white/5 rounded-xl p-3 text-center hover:bg-white/10 transition-all">
+            <span className="text-xl">🏅</span>
+            <p className="text-xs mt-1 text-slate-400">Badges</p>
+          </Link>
+          <Link href="/settings" className="bg-white/5 rounded-xl p-3 text-center hover:bg-white/10 transition-all">
+            <span className="text-xl">⚙️</span>
+            <p className="text-xs mt-1 text-slate-400">Settings</p>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
